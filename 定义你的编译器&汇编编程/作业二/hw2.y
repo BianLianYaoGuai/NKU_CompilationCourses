@@ -40,7 +40,7 @@ expr    :       expr ADD expr   { sprintf($$, "%s%s+", $1, $3);}
         |       expr MUL expr   { sprintf($$, "%s%s*", $1, $3);}
         |       expr DIV expr   { sprintf($$, "%s%s/", $1, $3);}
         |       LP expr RP   { sprintf($$, "%s", $2);}
-        |       MINUS expr %prec UMINUS   { sprintf($$, "%s-", $2);}
+        |       MINUS expr %prec UMINUS   { sprintf($$, "%-s", $2);}
         |       NUMBER  { sprintf($$, "%s", $1);}
         ;
 
