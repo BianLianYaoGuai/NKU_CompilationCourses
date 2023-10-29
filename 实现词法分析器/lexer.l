@@ -19,13 +19,20 @@ typedef struct {
 
 identArray arr;
 int count = 0;
+
+int col = 0;//列号
+int line = 0;//行号
+//当lex开始运行时，默认状态是INITIAL，以后可在C代码里用"BEGIN 状态名;"切换到其它状态(BEGIN是lex/yacc内置的宏)。
 %}
 
+%x COMMENT
 
+LineComments  "//".*"\n"
 Ident         [a-zA-Z_]([a-zA-Z_]|[0-9])*
-DecConst      [1-9]([0-9])*
-OctConst      0([0-7]*)
-HexConst      0x([0-9a_f]*)|0X([0-9a_f]*)
+DecIntConst      [1-9]([0-9])*
+OctIntConst      0[1-7]([0-7]*)
+HexIntConst      0x([0-9a_fA-F]*)|0X([0-9a_fA-F]*)
+
 CONST         const
 INT           int
 IF            if
@@ -55,14 +62,31 @@ Or            "||"
 Assign        "=" 
 
 
+
 LeftParenthesis   "("
 RightParenthesis  ")"
+
 LeftBrace         "{"
 RightBrace        "}"
+
+LeftBracket       "["
+RightBracket      "]"
+
 Semicolon         ";"
 
+Comma             ","
 
 %%
+
+"/*"                {BEGIN COMMENT;}
+
+<COMMENT>"*/"       {BEGIN INITIAL;}
+
+<COMMENT>.          {}
+
+
+{LineComments}      {}
+
 {CONST}             printf("CONST \t\t\t %s \n", yytext);
 {INT}               printf("INT \t\t\t %s \n", yytext);
 {IF}                printf("IF \t\t\t %s \n", yytext);
@@ -82,23 +106,24 @@ Semicolon         ";"
     }
 }
 
-{DecConst}          {
+
+{DecIntConst}          {
     int dec = 0;
     for (int i = 0; i < strlen(yytext); i++) {
         dec = dec * 10 + yytext[i] - '0';
     }
-    printf("(Dec)NUMBER \t\t %s \t\t %d\n", yytext, dec);
+    printf("(Dec)INT \t\t %s \t\t %d\n", yytext, dec);
 }
 
-{OctConst}          {
+{OctIntConst}          {
     int Oct = 0;
     for (int i = 1; i < strlen(yytext); i++) {
         Oct = Oct * 8 + yytext[i] - '0';
     }
-    printf("(Oct)NUMBER \t\t %s \t\t %d\n", yytext, Oct);
+    printf("(Oct)INT \t\t %s \t\t %d\n", yytext, Oct);
 }
 
-{HexConst}          {
+{HexIntConst}          {
     int Hex = 0;
     for (int i = 2; i < strlen(yytext); i++) {
         if (yytext[i] >= '0' && yytext[i] <= '9')
@@ -106,16 +131,16 @@ Semicolon         ";"
         else
             Hex = Hex * 16 + yytext[i] - 'a' + 10;
     }
-    printf("(Hex)NUMBER \t\t %s \t\t %d\n", yytext, Hex);
+    printf("(Hex)INT \t\t %s \t\t %d\n", yytext, Hex);
 }
 
 {Plus}              printf("Plus \t\t\t %s \n", yytext);
 {Minus}             printf("Minus \t\t\t %s \n", yytext);
-{Multiply}          printf("Multiply \t\t %s \n", yytext);
-{Divide}            printf("Divide \t\t %s \n", yytext);
-{Modulo}            printf("Modulo \t\t %s \n", yytext);
+{Multiply}          printf("Multiply \t\t\t %s \n", yytext);
+{Divide}            printf("Divide \t\t\t %s \n", yytext);
+{Modulo}            printf("Modulo \t\t\t %s \n", yytext);
 {LessThan}          printf("LessThan \t\t %s \n", yytext);
-{GreaterThan}       printf("GreaterThan \t\t %s \n", yytext);
+{GreaterThan}       printf("GreaterThan \t\t\t %s \n", yytext);
 {GreaterThanEqual}  printf("GreaterThanEqual \t %s \n", yytext);
 {LessThanEqual}     printf("LessThanEqual \t\t %s \n", yytext);
 {Equal}             printf("Equal \t\t\t %s \n", yytext);
@@ -130,6 +155,9 @@ Semicolon         ";"
 {LeftBrace}         printf("LeftBrace \t\t %s \n", yytext);
 {RightBrace}        printf("RightBrace \t\t %s \n", yytext);
 {Semicolon}         printf("Semicolon \t\t %s \n", yytext);
+{LeftBracket}       printf("LeftBracket \t\t %s \n", yytext);
+{RightBracket}      printf("RightBracket \t\t %s \n", yytext);
+{Comma}             printf("Comma \t\t\t %s \n", yytext);
 
 {Space}             {}
 {Tab}               {}
