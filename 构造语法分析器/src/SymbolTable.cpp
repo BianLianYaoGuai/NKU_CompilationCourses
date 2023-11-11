@@ -8,12 +8,10 @@ SymbolEntry::SymbolEntry(Type *type, int kind)
     this->kind = kind;
 }
 
-ConstantSymbolEntry::ConstantSymbolEntry(Type *type, int value) : SymbolEntry(type, SymbolEntry::CONSTANT)
+ConstantSymbolEntry::ConstantSymbolEntry(Type *type, double value) : SymbolEntry(type, SymbolEntry::CONSTANT)
 {
     this->value = value;
 }
-
-
 
 std::string ConstantSymbolEntry::toStr()
 {
@@ -68,30 +66,19 @@ SymbolTable::SymbolTable(SymbolTable *prev)
     3. If it's not in the current table, search it in previous ones(along the 'prev' link).
     4. If you find the entry, return it.
     5. If you can't find it in all symbol tables, return nullptr.
-    
-    1.���ű���һ����ջ����ջ����������ǰ�������еķ�����Ŀ��
-    2.����������ǰ���ű��е���Ŀ��
-    3.��������ڵ�ǰ���У�������ǰ�ı��������������š�prev�����ӣ���
-    4.����ҵ���Ŀ���뽫���˻ء�
-    5.��������з��ű��ж��Ҳ��������뷵��nullptr��
 */
 SymbolEntry* SymbolTable::lookup(std::string name)
 {
     // Todo
-    
-    SymbolTable* currentTable = this;  // ��ǰ���ű�
-
-    while (currentTable != nullptr) {
-        // �ڵ�ǰ���ű��в�����Ŀ
-        if (currentTable->symbolTable.count(name) > 0) {
-            return currentTable->symbolTable[name];
+    if(symbolTable.find(name)!=symbolTable.end()){
+        return symbolTable[name];
+    }else{
+        if(prev != nullptr){
+            return prev->lookup(name);
+        }else{
+            return nullptr;
         }
-
-        // ��ǰһ�����ű��в���
-        currentTable = currentTable->prev;
     }
-
-    return nullptr;  // û���ҵ���Ŀ
 }
 
 // install the entry into current symbol table.
